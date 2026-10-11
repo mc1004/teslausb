@@ -1,9 +1,9 @@
 #!/bin/bash -eu
 
-function ensure_archive_is_mounted () {
-  log "Ensuring cam archive is mounted..."
-  ensure_mountpoint_is_mounted_with_retry "$ARCHIVE_MOUNT"
-  log "Ensured cam archive is mounted."
+function mount_if_set() {
+  local mount_point=$1
+  [ -z "$mount_point" ] || ensure_mountpoint_is_mounted_with_retry "$mount_point"
 }
 
-ensure_archive_is_mounted
+mount_if_set "${ARCHIVE_MOUNT:-}"
+mount_if_set "${MUSIC_ARCHIVE_MOUNT:-}"

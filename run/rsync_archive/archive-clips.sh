@@ -1,16 +1,13 @@
 #!/bin/bash -eu
 
-log "Archiving through rsync..."
-
-source /root/.teslaCamRsyncConfig
-
-num_files_moved=$(rsync -auzvh --no-perms --stats --log-file=/tmp/archive-rsync-cmd.log /mnt/cam/TeslaCam/saved* $user@$server:$path | awk '/files transferred/{print $NF}')
-
-/root/bin/send-pushover "$num_files_moved"
-
-if [ $num_files_moved > 0 ]
-then
-  log "Successfully synced files through rsync."
-else
-  log "No files to archive through rsync."
-fi
+while [ -n "${1+x}" ]
+do
+  if ! (rsync -avhRL --timeout=60 --remove-source-files --no-perms --omit-dir-times \
+        --stats --log-file=/tmp/archive-rsync-cmd.log --ignore-missing-args \
+        --files-from="$2" "$1" "$RSYNC_USER@$RSYNC_SERVER:$RSYNC_PATH" &> /tmp/rsynclog || [[ "$?" = "24" ]] )
+  then
+    cat /tmp/archive-rsync-cmd.log /tmp/rsynclog > /tmp/archive-error.log
+    exit 1
+  fi
+  shift 2
+done

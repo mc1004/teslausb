@@ -1,9 +1,11 @@
 #!/bin/bash
 
-echo "Remounting / as read/write"
+echo "Making root partition writeable"
 mount / -o remount,rw
-echo "Remounting /boot as read/write"
-mount /boot -o remount,rw
-echo "Done. Make any changes needed, and reboot the Pi when ready."
-echo "Filesystems / and /boot will be mounted as read only after reboot."
 
+if findmnt /teslausb > /dev/null
+then
+  echo "Making boot/firmware partition writeable"
+  mount /teslausb -o remount,rw
+fi
+echo "Done. Make any changes needed, and reboot the Pi when ready."
